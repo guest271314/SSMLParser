@@ -4,7 +4,7 @@ Implement SSML parsing for [Web Speech API](https://w3c.github.io/speech-api/spe
 
 
 The goal of this repository is to create free (libre) open source software algorithms to parse a well-formed SSML document in conformace with the specification for the purpose of uniform implementation at modern browsers.
-----
+
 
 [Speech Synthesis Markup Language (SSML) Version 1.1](https://www.w3.org/TR/2010/REC-speech-synthesis11-20100907/) (SSML) parsing has not yet been [www-voice@w3.org](https://lists.w3.org/Archives/Public/www-voice/) [SSML parsing implementation at browsers](https://lists.w3.org/Archives/Public/www-voice/2017OctDec/0000.html).
 
