@@ -70,10 +70,6 @@
 
 })()
 .then(async() => {
-  // https://www.w3.org/TR/speech-synthesis11/#S3.2.4
-  // `prosody` element `pitch` attribute values "x-low", "low", "medium", "high", "x-high", or "default" 
-  // https://w3c.github.io/speech-api/speechapi.html#dfn-utterancepitch
-  // `pitch` 0-2 
   const pitches = new Map(Object.entries({
     "x-low": 0.3333333333333333,
     "low": 0.6666666666666666,
