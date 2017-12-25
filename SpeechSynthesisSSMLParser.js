@@ -3,7 +3,7 @@
 // See https://lists.w3.org/Archives/Public/www-voice/2017OctDec/0000.html
 // https://github.com/guest271314/SpeechSynthesisSSMLParser
 class SpeechSynthesisSSMLParser {
-  constructor(ssml = ``, voices) {
+  constructor(ssml, voices) {
     const utterances = [];
     const [pitches, rates] = [new Map(Object.entries({
         "x-low": 0.3333333333333333,
