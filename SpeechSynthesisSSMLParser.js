@@ -57,7 +57,8 @@ class SpeechSynthesisSSMLParser {
                   rate: rate < 0.1 || rate > 10 ? rates.default : rate,
                   text
                 });
-                console.log(`SpeechSynthesisUtterance pitch: ${utterance.pitch}, SpeechSynthesisUtterance rate: ${utterance.rate}`);
+                console.log(`SpeechSynthesisUtterance pitch: ${utterance.pitch}
+                           , SpeechSynthesisUtterance rate: ${utterance.rate}`);
                 utterances.push(utterance);
                 resolve()
               }
