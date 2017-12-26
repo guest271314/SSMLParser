@@ -77,9 +77,9 @@ class SpeechSynthesisSSMLParser {
                 ];
 
                 Object.assign(utterance, {
-                  voice: voices.find(({
-                    name: voiceName
-                  }) => name.split(/\s/).some(prop => voiceName.indexOf(prop) >-1)),
+                  voice: name.split(/\s/).concat("default")
+                         .reduce((res, prop) => 
+                           [...res, ...voices.filter(({name:voiceName}) => voiceName.indexOf(prop) >-1)], [])[0],
                   text
                 });
 
