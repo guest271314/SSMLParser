@@ -11,7 +11,8 @@
 // https://lists.w3.org/Archives/Public/public-speech-api/2017Dec/0000.html
 // https://github.com/w3c/web-platform-tests/issues/8795
 // https://www.w3.org/TR/speech-synthesis11/#S3.2.4
-// `prosody` element `pitch` attribute values  "x-slow", "slow", "medium", "fast", "x-fast", or "default" 
+// `voice` element `pitch` attribute values  `"gender"`, `"age"`, `"variant"`, `"name"`, `"languages"`, `"required"`,
+// `"ordering"`, `"ovoicefailure"`
 // https://w3c.github.io/speech-api/webspeechapi.html#dfn-utterancevoice
 ;(async() => {
   const setVoices = voices => {
