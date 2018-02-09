@@ -104,13 +104,13 @@ const audioSilenceBreak = async({time = 0, strength = 0} = {}) => {
         const strength = node.getAttribute("strength") 
                          ? strengths.get(node.getAttribute("strength")) 
                          : node.getAttribute("time") 
-                           ? strengths.get(node.getAttribute("none"))
+                           ? strengths.get("none")
                            : strengths.get("medium");
         // handle "250ms", "3s"
         const time = node.getAttribute("time")
                      ? node.getAttribute("time").match(/[\d.]+|\w+$/g)
                        .reduce((n, t) => Number(n) * (t === "s" ? 1 : .001)) 
-                     : strengths.get(node.getAttribute("none"));
+                     : strengths.get("none");
                      
         console.log(strength, time);
         
