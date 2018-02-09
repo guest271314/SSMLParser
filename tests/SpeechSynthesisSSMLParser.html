@@ -40,6 +40,8 @@
               if (ssml.documentElement.children.length === 0) {
                 utterances.push(new SpeechSynthesisUtterance(ssml.documentElement.textContent));
               }
+              // TODO: Include <break> parsing tests 
+              // https://github.com/guest271314/SpeechSynthesisSSMLParser/tree/master/break/tests
               for (let node of ssml.documentElement.children) {
                 await new Promise(resolve => {
                   const utterance = new SpeechSynthesisUtterance();
