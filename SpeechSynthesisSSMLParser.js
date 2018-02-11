@@ -71,7 +71,6 @@
         if (this.ssml.documentElement.attributes.getNamedItem("xml:lang").value.length) {
 
           if (this.ssml.documentElement.children.length === 0) {
-            console.log("here, why");
             const utterance = new SpeechSynthesisUtterance(this.ssml.documentElement.textContent);
             this.utterance({
               utterance
