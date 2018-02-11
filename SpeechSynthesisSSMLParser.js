@@ -227,9 +227,11 @@
         if (voice) {
           utterance.voice = voice;
         }
-        this.utterance({
-          utterance
-        });
+        if (utterance.text.trim()) {
+          this.utterance({
+            utterance
+          });
+        }
       }
 
     }
