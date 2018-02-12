@@ -3,20 +3,16 @@
     // See https://lists.w3.org/Archives/Public/www-voice/2017OctDec/0000.html
     // https://github.com/guest271314/SpeechSynthesisSSMLParser
     class SpeechSynthesisSSMLParser {
-
       constructor(ssml) {
-
+        console.log(this);
         this.ssml = ssml;
-
         this.queue = [];
-
         this.nodes = new Map(Object.entries({
           "break": this.break_,
           "prosody": this.prosody,
           "#text": this.text,
           "voice": this.voice
         }));
-
         this.pitches = new Map(Object.entries({
           "x-low": 0.3333333333333333,
           "low": 0.6666666666666666,
@@ -25,7 +21,6 @@
           "high": 1.6666666666666665,
           "x-high": 1.9999999999999998
         }));
-
         this.rates = new Map(Object.entries({
           "x-slow": 0.1,
           "slow": 0.5,
@@ -34,7 +29,6 @@
           "fast": 5,
           "x-fast": 10
         }));
-
         this.strengths = new Map(Object.entries({
           "none": 0,
           "x-weak": .125,
@@ -43,13 +37,10 @@
           "strong": 1,
           "x-strong": 2
         }));
-
         if (this.ssml && typeof this.ssml === "string") {
           this.ssml = (new DOMParser()).parseFromString(ssml, "application/xml");
         }
-
         if (this.ssml instanceof Document && this.ssml.documentElement.nodeName === "speak") {
-
           // handle `<break strength="none"/>`
           // remove the element
           // https://www.w3.org/TR/2010/REC-speech-synthesis11-20100907/#S3.2.3
@@ -59,40 +50,33 @@
             if (br.getAttribute("strength") === "none") {
               if (br.nextSibling && br.nextSibling.nodeName === "#text" && br.previousSibling 
                   && br.previousSibling.nodeName === "#text") {
-                br.previousSibling.nodeValue += br.nextSibling.nodeValue;
-                br.parentNode.removeChild(br.nextSibling);
-                br.parentNode.removeChild(br);
+                    br.previousSibling.nodeValue += br.nextSibling.nodeValue;
+                    br.parentNode.removeChild(br.nextSibling);
+                    br.parentNode.removeChild(br);
               } else {
                 br.parentNode.removeChild(br);
               }
             }
           });
-
           if (this.ssml.documentElement.attributes.getNamedItem("xml:lang").value.length) {
-
             if (this.ssml.documentElement.children.length === 0) {
-              console.log("here, why");
               const utterance = new SpeechSynthesisUtterance(this.ssml.documentElement.textContent);
               this.utterance({
                 utterance
               });
             } else {
-
               for (let node of this.ssml.documentElement.childNodes) {
                 console.log(node);
                 Reflect.apply(this.nodes.get(node.nodeName), this, [{
                   node
                 }]);
-
               }
             }
-
           } else {
             throw new TypeError("Root element of SSML document should be <speak>")
           }
         }
       }
-
       prosody({
         node, voice
       }) {
@@ -101,7 +85,6 @@
         const [{
           pitch,
           rate
-
         }, text] = [
           [...node.attributes].reduce((o, {
             nodeName,
@@ -116,17 +99,14 @@
           text,
           voice
         });
-
         this.utterance({
           utterance
         });
-
       }
-
       voice({
         node
       }) {
-        console.log("voice");
+
         const [{
           name
         }, text] = [
@@ -138,16 +118,12 @@
           }), Object.create(null)), node.textContent
         ];
 
-        const names = name.split(/\s/).concat("default")
-          .reduce((res, prop) => [...res, ...SpeechSynthesisSSMLParser.voices.filter(({
+        const names = SpeechSynthesisSSMLParser.voices.filter(({
             name: voiceName
-          }) => voiceName.indexOf(prop) > -1)], []);
-          
+          }) => voiceName.indexOf(name) > -1);
         if (node.children.length === 0) {
           const utterance = new SpeechSynthesisUtterance();
-
           console.log(names);
-
           Object.assign(utterance, {
             voice: names[0],
             text
@@ -158,12 +134,12 @@
         } else {
           for (let childNode of node.childNodes) {
             Reflect.apply(this.nodes.get(childNode.nodeName), this, [{
-              node: childNode, voice: names[0]
+              node: childNode,
+              voice: names[0]
             }]);
           }
         }
       }
-
       break_({
         node
       }) {
@@ -175,9 +151,7 @@
         // handle "250ms", "3s"
         let time = node.getAttribute("time") ? node.getAttribute("time").match(/[\d.]+|\w+$/g)
           .reduce((n, t) => Number(n) * (t === "s" ? 1 : .001)) : this.strengths.get("none");
-
         console.log(strength, time);
-
         // https://www.w3.org/TR/2010/REC-speech-synthesis11-20100907/#S3.2.3
         // "If both strength and time attributes are supplied, 
         // the processor will insert a break with a duration as specified by the time attribute, 
@@ -185,11 +159,8 @@
         if (!strength && !time) {
           strength = this.strengths.get("medium");
         }
-
         time += strength;
-
         console.log(time);
-
         this.queue.push(() => new Promise(resolve => {
           const context = new AudioContext();
           const ab = context.createBuffer(2, 44100 * time, 44100);
@@ -203,13 +174,10 @@
           source.start(context.currentTime);
           source.stop(context.currentTime + time);
         }));
-
       }
-
       utterance({
         utterance
       }) {
-        console.log("queue");
         if (utterance && utterance instanceof SpeechSynthesisUtterance) {
           this.queue.push(() => new Promise(resolve => {
             utterance.onend = resolve;
@@ -219,7 +187,6 @@
           }))
         }
       }
-
       text({
         node, voice
       }) {
@@ -233,18 +200,26 @@
           });
         }
       }
-
     }
-
-    SpeechSynthesisSSMLParser.voices = window.speechSynthesis.getVoices();
-
-    window.speechSynthesis.onvoiceschanged = async() => {
+    /*
+    // usage
+    const handleVoicesChanged = async() => {
+      console.log("voiceschanged");
       window.speechSynthesis.onvoiceschanged = null;
       SpeechSynthesisSSMLParser.voices = window.speechSynthesis.getVoices();
       console.log(SpeechSynthesisSSMLParser.voices);
-      // do stuff
+      let ssml = `<?xml version="1.0"?><speak version="1.1"
+       xmlns="http://www.w3.org/2001/10/synthesis"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.w3.org/2001/10/synthesis http://www.w3.org/TR/speech-synthesis11/synthesis.xsd"
+       xml:lang="en-US">
+       <voice name="english-us+klatt4" languages="en-US" required="name"><prosody pitch="0.67" contour="" range="" rate="default" duration="" volume="">The Golden Ratio</prosody><break strength="weak" time="350ms"/> ${(1 + Math.sqrt(5)) / 2}</voice>
+      </speak>`;
+      for (let utterance of new SpeechSynthesisSSMLParser(ssml).queue) {
+        await utterance();
+      }
     }
-
-    if (!SpeechSynthesisSSMLParser.voices.length) {
-      window.speechSynthesis.getVoices();
-    }
+    
+    window.speechSynthesis.onvoiceschanged = handleVoicesChanged;
+    SpeechSynthesisSSMLParser.voices = window.speechSynthesis.getVoices();
+    */
