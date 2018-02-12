@@ -81,6 +81,11 @@
           } else {
             throw new TypeError("Root element of SSML document should be <speak>")
           }
+        } else {
+          const utterance = new SpeechSynthesisUtterance(this.ssml = ssml);
+          this.utterance({
+            utterance
+          });
         }
       }
       prosody({
@@ -224,6 +229,7 @@
     SpeechSynthesisSSMLParser.voices = window.speechSynthesis.getVoices();
     
     const ssmlStrings = [
+      "Plain text and SSML samples",
       (new DOMParser()).parseFromString(`<?xml version="1.0"?>
        <speak version="1.1"
        xmlns="http://www.w3.org/2001/10/synthesis"
