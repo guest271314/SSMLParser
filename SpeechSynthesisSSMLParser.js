@@ -1,4 +1,4 @@
-        // SpeechSynthesisSSMLParser.js guest271314 12-17-2017
+    // SpeechSynthesisSSMLParser.js guest271314 12-17-2017
     // Motivation: Implement SSML parsing for Web Speech API
     // See https://lists.w3.org/Archives/Public/www-voice/2017OctDec/0000.html
     // https://github.com/guest271314/SpeechSynthesisSSMLParser
