@@ -11,7 +11,9 @@
           "break": this._break,
           "prosody": this.prosody,
           "#text": this.text,
-          "voice": this.voice
+          "voice": this.voice,
+          "p": this.p,
+          "s": this.s
         }));
         this.pitches = new Map(Object.entries({
           "x-low": 0.3333333333333333,
@@ -45,7 +47,7 @@
           this.br();
           // handle `<sub>`
           this.sub();
-            
+
           if (this.ssml.documentElement.attributes.getNamedItem("xml:lang").value.length) {
             if (this.ssml.documentElement.children.length === 0) {
               const utterance = new SpeechSynthesisUtterance(this.ssml.documentElement.textContent);
@@ -54,11 +56,11 @@
               });
             } else {
               for (let node of this.ssml.documentElement.childNodes) {
-               
+
                 Reflect.apply(this.nodes.get(node.nodeName), this, [{
                   node
                 }])
-                
+
               }
             }
           } else {
@@ -111,8 +113,8 @@
           }), Object.create(null)), node.textContent
         ];
         const names = SpeechSynthesisSSMLParser.voices.filter(({
-            name: voiceName
-          }) => voiceName.indexOf(name) > -1);
+          name: voiceName
+        }) => voiceName.indexOf(name) > -1);
         if (node.children.length === 0) {
           const utterance = new SpeechSynthesisUtterance();
           console.log(names);
@@ -133,16 +135,20 @@
         }
       }
       _break({
-        node
+        node, _strength
       }) {
-        let strength = node.getAttribute("strength") 
-                       ? this.strengths.get(node.getAttribute("strength")) 
-                       : node.getAttribute("time") 
-                         ? this.strengths.get("none") 
-                         : this.strengths.get("medium");
+        let strength = !node 
+                       ? _strength // handle `<p>` and `<s>` elements
+                       : node.getAttribute("strength") 
+                         ? this.strengths.get(node.getAttribute("strength")) 
+                         : node.getAttribute("time") 
+                           ? this.strengths.get("none") 
+                           : this.strengths.get("medium");
         // handle "250ms", "3s"
-        let time = node.getAttribute("time") ? node.getAttribute("time").match(/[\d.]+|\w+$/g)
-          .reduce((n, t) => Number(n) * (t === "s" ? 1 : .001)) : this.strengths.get("none");
+        let time = node && node.getAttribute("time") 
+                   ? node.getAttribute("time").match(/[\d.]+|\w+$/g)
+                     .reduce((n, t) => Number(n) * (t === "s" ? 1 : .001)) 
+                   : this.strengths.get("none");
         console.log(strength, time);
         // https://www.w3.org/TR/2010/REC-speech-synthesis11-20100907/#S3.2.3
         // "If both strength and time attributes are supplied, 
@@ -216,35 +222,77 @@
           if (br.getAttribute("strength") === "none") {
             if (br.nextSibling && br.nextSibling.nodeName === "#text" && br.previousSibling 
                 && br.previousSibling.nodeName === "#text") {
-                  br.previousSibling.nodeValue += br.nextSibling.nodeValue;
-                  br.parentNode.removeChild(br.nextSibling);
-                  br.parentNode.removeChild(br);
+              br.previousSibling.nodeValue += br.nextSibling.nodeValue;
+              br.parentNode.removeChild(br.nextSibling);
+              br.parentNode.removeChild(br);
             } else {
-                br.parentNode.removeChild(br);
+              br.parentNode.removeChild(br);
             }
           }
         });
       }
-    }
-    /*
-    // usage
-    const handleVoicesChanged = async() => {
-      console.log("voiceschanged");
-      window.speechSynthesis.onvoiceschanged = null;
-      SpeechSynthesisSSMLParser.voices = window.speechSynthesis.getVoices();
-      console.log(SpeechSynthesisSSMLParser.voices);
-      let ssml = `<?xml version="1.0"?><speak version="1.1"
-       xmlns="http://www.w3.org/2001/10/synthesis"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.w3.org/2001/10/synthesis http://www.w3.org/TR/speech-synthesis11/synthesis.xsd"
-       xml:lang="en-US">
-       <voice name="english-us+klatt4" languages="en-US" required="name"><prosody pitch="0.67" contour="" range="" rate="default" duration="" volume="">The Golden Ratio</prosody><break strength="weak" time="350ms"/> ${(1 + Math.sqrt(5)) / 2}</voice>
-      </speak>`;
-      for (let utterance of new SpeechSynthesisSSMLParser(ssml).queue) {
-        await utterance();
+      // The specification does not explicitly define a pause in audio output.
+      // https://www.w3.org/TR/2010/REC-speech-synthesis11-20100907/#S3.1.8.1
+      // "A p element represents a paragraph. An s element represents a sentence."
+      // "The use of p and s elements is optional. Where text occurs without an enclosing p or s element 
+      // the synthesis processor should attempt to determine the structure using language-specific knowledge of the format of plain text."
+      // see also:
+      // https://developer.amazon.com/docs/custom-skills/speech-synthesis-markup-language-ssml-reference.html#p
+      // https://console.bluemix.net/docs/services/text-to-speech/SSML-elements.html#ps_element
+      // https://developers.google.com/actions/reference/ssml#p+s
+      p({
+        node, voice
+      }) {
+        if (node.children.length === 0) {
+          console.log(node.textContent);
+          const utterance = new SpeechSynthesisUtterance(node.textContent);
+          if (voice) {
+            utterance.voice = voice;
+          }
+          this._break({_strength:this.strengths.get("x-strong")});
+          this._queue({
+            utterance
+          });
+          this._break({_strength:this.strengths.get("x-strong")});
+        } else {
+          for (let childNode of node.childNodes) {
+            Reflect.apply(this.nodes.get(childNode.nodeName), this, [{
+              node: childNode,
+              voice
+            }]);
+          }
+        }
+      }
+      // The specification does not explicitly define a pause in audio output.
+      // https://www.w3.org/TR/2010/REC-speech-synthesis11-20100907/#S3.1.8.1
+      // "A p element represents a paragraph. An s element represents a sentence."
+      // "The use of p and s elements is optional. Where text occurs without an enclosing p or s element 
+      // the synthesis processor should attempt to determine the structure using language-specific knowledge of the format of plain text."
+      // see also:
+      // https://developer.amazon.com/docs/custom-skills/speech-synthesis-markup-language-ssml-reference.html#s
+      // https://console.bluemix.net/docs/services/text-to-speech/SSML-elements.html#ps_element
+      // https://developers.google.com/actions/reference/ssml#p+s
+      s({
+        node, voice
+      }) {
+        if (node.children.length === 0) {
+          console.log(node.textContent);
+          const utterance = new SpeechSynthesisUtterance(node.textContent);
+          if (voice) {
+            utterance.voice = voice;
+          }
+          this._break({_strength:this.strengths.get("strong")});
+          this._queue({
+            utterance
+          });
+          this._break({_strength:this.strengths.get("strong")});
+        } else {
+          for (let childNode of node.childNodes) {
+            Reflect.apply(this.nodes.get(childNode.nodeName), this, [{
+              node: childNode,
+              voice
+            }]);
+          }
+        }
       }
     }
-    
-    window.speechSynthesis.onvoiceschanged = handleVoicesChanged;
-    SpeechSynthesisSSMLParser.voices = window.speechSynthesis.getVoices();
-    */
