@@ -75,6 +75,11 @@
           } else {
             throw new TypeError("Root element of SSML document should be <speak>")
           }
+        } else {
+            const utterance = new SpeechSynthesisUtterance(this.ssml = ssml);
+            this.utterance({
+              utterance
+            });
         }
       }
       prosody({
