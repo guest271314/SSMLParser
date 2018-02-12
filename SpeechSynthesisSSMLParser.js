@@ -41,23 +41,11 @@
           this.ssml = (new DOMParser()).parseFromString(ssml, "application/xml");
         }
         if (this.ssml instanceof Document && this.ssml.documentElement.nodeName === "speak") {
-          // handle `<break strength="none"/>`
-          // remove the element
-          // https://www.w3.org/TR/2010/REC-speech-synthesis11-20100907/#S3.2.3
-          // "The value "none" indicates that no prosodic break boundary should be outputted, 
-          // which can be used to prevent a prosodic break which the processor would otherwise produce."
-          this.ssml.querySelectorAll("break").forEach(br => {
-            if (br.getAttribute("strength") === "none") {
-              if (br.nextSibling && br.nextSibling.nodeName === "#text" && br.previousSibling 
-                  && br.previousSibling.nodeName === "#text") {
-                    br.previousSibling.nodeValue += br.nextSibling.nodeValue;
-                    br.parentNode.removeChild(br.nextSibling);
-                    br.parentNode.removeChild(br);
-              } else {
-                br.parentNode.removeChild(br);
-              }
-            }
-          });
+          // handle `<break strength="none">`
+          this.br();
+          // handle `<sub>`
+          this.sub();
+            
           if (this.ssml.documentElement.attributes.getNamedItem("xml:lang").value.length) {
             if (this.ssml.documentElement.children.length === 0) {
               const utterance = new SpeechSynthesisUtterance(this.ssml.documentElement.textContent);
@@ -203,6 +191,39 @@
             utterance
           });
         }
+      }
+      sub() {
+        const utterance = new SpeechSynthesisUtterance();
+        // handle `<sub alias="Speech Synthesis Markup Language">SSML</sub>`
+        // replace the element with `#text` node with `nodeValue` set to `alias` attribute value
+        // https://www.w3.org/TR/2010/REC-speech-synthesis11-20100907/#edef_sub
+        // "The sub element is employed to indicate that the text in the alias attribute value replaces the contained text for pronunciation. 
+        // This allows a document to contain both a spoken and written form. 
+        // The required alias attribute specifies the string to be spoken instead of the enclosed string. 
+        // The processor should apply text normalization to the alias value."
+        this.ssml.querySelectorAll("sub").forEach(sub => {
+          const textNode = this.ssml.createTextNode(sub.getAttribute("alias"));
+          sub.parentNode.replaceChild(textNode, sub);
+        });
+      }
+      br() {
+        // handle `<break strength="none"/>`
+        // remove the element
+        // https://www.w3.org/TR/2010/REC-speech-synthesis11-20100907/#S3.2.3
+        // "The value "none" indicates that no prosodic break boundary should be outputted, 
+        // which can be used to prevent a prosodic break which the processor would otherwise produce."
+        this.ssml.querySelectorAll("break").forEach(br => {
+          if (br.getAttribute("strength") === "none") {
+            if (br.nextSibling && br.nextSibling.nodeName === "#text" && br.previousSibling 
+                && br.previousSibling.nodeName === "#text") {
+                  br.previousSibling.nodeValue += br.nextSibling.nodeValue;
+                  br.parentNode.removeChild(br.nextSibling);
+                  br.parentNode.removeChild(br);
+            } else {
+                br.parentNode.removeChild(br);
+            }
+          }
+        });
       }
     }
     /*
