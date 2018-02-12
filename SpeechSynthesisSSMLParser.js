@@ -1,4 +1,4 @@
-    // SpeechSynthesisSSMLParser.js guest271314 12-17-2017
+        // SpeechSynthesisSSMLParser.js guest271314 12-17-2017
     // Motivation: Implement SSML parsing for Web Speech API
     // See https://lists.w3.org/Archives/Public/www-voice/2017OctDec/0000.html
     // https://github.com/guest271314/SpeechSynthesisSSMLParser
@@ -8,7 +8,7 @@
         this.ssml = ssml;
         this.queue = [];
         this.nodes = new Map(Object.entries({
-          "break": this.break_,
+          "break": this._break,
           "prosody": this.prosody,
           "#text": this.text,
           "voice": this.voice
@@ -61,25 +61,26 @@
           if (this.ssml.documentElement.attributes.getNamedItem("xml:lang").value.length) {
             if (this.ssml.documentElement.children.length === 0) {
               const utterance = new SpeechSynthesisUtterance(this.ssml.documentElement.textContent);
-              this.utterance({
+              this._queue({
                 utterance
               });
             } else {
               for (let node of this.ssml.documentElement.childNodes) {
-                console.log(node);
+               
                 Reflect.apply(this.nodes.get(node.nodeName), this, [{
                   node
-                }]);
+                }])
+                
               }
             }
           } else {
             throw new TypeError("Root element of SSML document should be <speak>")
           }
         } else {
-            const utterance = new SpeechSynthesisUtterance(this.ssml = ssml);
-            this.utterance({
-              utterance
-            });
+          const utterance = new SpeechSynthesisUtterance(this.ssml = ssml);
+          this._queue({
+            utterance
+          });
         }
       }
       prosody({
@@ -104,14 +105,13 @@
           text,
           voice
         });
-        this.utterance({
+        this._queue({
           utterance
         });
       }
       voice({
         node
       }) {
-
         const [{
           name
         }, text] = [
@@ -122,7 +122,6 @@
             [nodeName]: nodeValue
           }), Object.create(null)), node.textContent
         ];
-
         const names = SpeechSynthesisSSMLParser.voices.filter(({
             name: voiceName
           }) => voiceName.indexOf(name) > -1);
@@ -133,7 +132,7 @@
             voice: names[0],
             text
           });
-          this.utterance({
+          this._queue({
             utterance
           });
         } else {
@@ -145,7 +144,7 @@
           }
         }
       }
-      break_({
+      _break({
         node
       }) {
         let strength = node.getAttribute("strength") 
@@ -180,7 +179,7 @@
           source.stop(context.currentTime + time);
         }));
       }
-      utterance({
+      _queue({
         utterance
       }) {
         if (utterance && utterance instanceof SpeechSynthesisUtterance) {
@@ -200,7 +199,7 @@
           utterance.voice = voice;
         }
         if (utterance.text.trim()) {
-          this.utterance({
+          this._queue({
             utterance
           });
         }
