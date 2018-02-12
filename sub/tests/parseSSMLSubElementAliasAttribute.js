@@ -1,4 +1,4 @@
-// parseSSMLSubElement.js 2-12-2018 guest271314
+    // parseSSMLSubElementAliasAttribute.js 2-12-2018 guest271314
     // https://github.com/guest271314/SpeechSynthesisSSMLParser
     // https://www.w3.org/TR/2010/REC-speech-synthesis11-20100907/#edef_sub
     // https://bugs.chromium.org/p/chromium/issues/detail?id=88072
