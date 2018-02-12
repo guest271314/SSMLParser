@@ -10,7 +10,6 @@
 // https://lists.w3.org/Archives/Public/www-voice/2017OctDec/0000.html
 // https://lists.w3.org/Archives/Public/public-speech-api/2017Dec/0000.html
 // https://github.com/w3c/web-platform-tests/issues/8795
-// https://www.w3.org/TR/speech-synthesis11/#S3.2.4
 // `prosody` element `pitch` attribute values "x-low", "low", "medium", "high", "x-high", or "default" 
 // https://w3c.github.io/speech-api/speechapi.html#dfn-utterancepitch
 // `pitch` 0-2 
