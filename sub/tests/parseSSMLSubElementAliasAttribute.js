@@ -21,7 +21,8 @@
   </speak>`;
       const parser = new DOMParser();
       const ssmlDocument = parser.parseFromString(ssmlString, "text/xml");
-      const utterance = new SpeechSynthesisUtterance();
+      const utterance = new SpeechSynthesisUtterance();       
+      
       for (let node of ssmlDocument.documentElement.children) {
         if (node.nodeName === "sub") {
           console.log(node.outerHTML);
@@ -34,7 +35,7 @@
             resolve()
           }
 
-          console.log(`SpeechSynthesisUtterance pitch: ${utterance.text}`);
+          console.log(`SpeechSynthesisUtterance text: ${utterance.text}`);
           window.speechSynthesis.speak(utterance)
         })
 
