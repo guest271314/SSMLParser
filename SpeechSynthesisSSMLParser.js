@@ -267,7 +267,7 @@
       }
       // handle `<s>` element
       // The specification does not explicitly define a change to prosody, 
-      // or a pause in audio output before and after, or pause only after a `<p>` element.
+      // or a pause in audio output before and after, or pause only after a `<s>` element.
       // https://www.w3.org/TR/2010/REC-speech-synthesis11-20100907/#S3.1.8.1
       // "A p element represents a paragraph. An s element represents a sentence."
       // "The use of p and s elements is optional. Where text occurs without an enclosing p or s element 
