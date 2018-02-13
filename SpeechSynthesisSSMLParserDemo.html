@@ -19,7 +19,8 @@
           "#text": this.text,
           "voice": this.voice,
           "p": this.p,
-          "s": this.s
+          "s": this.s,
+          "say-as": this.sayAs
         }));
         this.pitches = new Map(Object.entries({
           "x-low": 0.3333333333333333,
@@ -306,6 +307,29 @@
           }
         }
       }
+      // https://www.w3.org/TR/2005/NOTE-ssml-sayas-20050526
+      sayAs({node, voice}) {
+        const interpretAs = node.getAttribute("interpret-as");
+        if (interpretAs === "characters" || interpretAs === "digits") {
+          for (let char of node.textContent) {
+            const utterance = new SpeechSynthesisUtterance(char);
+            this._queue({utterance})
+          }
+        }
+        if (interpretAs === "cardinal") {
+          const utterance = new SpeechSynthesisUtterance(node.textContent);
+          this._queue({utterance})
+        }
+        if (interpretAs === "ordinal") {
+          const utterance = new SpeechSynthesisUtterance(this.toOrdinal(node.textContent));
+          this._queue({utterance})
+        }
+      }
+      toOrdinal(n) {
+        // https://stackoverflow.com/q/13627308
+        // https://codegolf.stackexchange.com/a/119563
+        return n+=[,"st","nd","rd"][n%100>>3^1&&n%10]||"th";
+      }
     }
 
 
@@ -360,6 +384,16 @@
        xsi:schemaLocation="http://www.w3.org/2001/10/synthesis http://www.w3.org/TR/speech-synthesis11/synthesis.xsd"
        xml:lang="en-US">
        <voice name="english-us+klatt4" languages="en-US" required="name"><prosody pitch="0.67" contour="" range="" rate="default" duration="" volume="">The Golden Ratio</prosody><break strength="weak" time="350ms"/> ${(1 + Math.sqrt(5)) / 2}</voice>
+  </speak>`, `<?xml version="1.0"?>
+  <speak version="1.1"
+       xmlns="http://www.w3.org/2001/10/synthesis"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.w3.org/2001/10/synthesis http://www.w3.org/TR/speech-synthesis11/synthesis.xsd"
+       xml:lang="en-US">
+       Digits <say-as interpret-as="digits">123</say-as> <break/>
+       Cardinal <say-as interpret-as="cardinal">123</say-as> <break/>
+       Ordinal <say-as interpret-as="ordinal">123</say-as> <break/>
+       Characters <say-as interpret-as="characters">quantum mechanics</say-as>
   </speak>`
     ];
 
