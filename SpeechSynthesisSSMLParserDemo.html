@@ -51,7 +51,7 @@
         if (this.ssml instanceof Document && this.ssml.documentElement.nodeName === "speak") {
           // handle `<break strength="none">`
           this.br();
-          // handle `<sub>`
+          // handle `<sub alias="Speech Synthesis Markup Language">SSML</sub>`
           this.sub();
           if (this.ssml.documentElement.attributes.getNamedItem("xml:lang").value.length) {
             if (this.ssml.documentElement.children.length === 0) {
@@ -235,7 +235,7 @@
         });
       }
       // handle `<p>` element
-      // The specification does not explicitly define a change to prosody, 
+      // The specification does appear to explicitly define a change to prosody, 
       // or a pause in audio output before and after, or pause only after a `<p>` element.
       // https://www.w3.org/TR/2010/REC-speech-synthesis11-20100907/#S3.1.8.1
       // "A p element represents a paragraph. An s element represents a sentence."
@@ -273,7 +273,7 @@
       }
       // handle `<s>` element
       // The specification does not explicitly define a change to prosody, 
-      // or a pause in audio output before and after, or pause only after a `<p>` element.
+      // or a pause in audio output before and after, or pause only after a `<s>` element.
       // https://www.w3.org/TR/2010/REC-speech-synthesis11-20100907/#S3.1.8.1
       // "A p element represents a paragraph. An s element represents a sentence."
       // "The use of p and s elements is optional. Where text occurs without an enclosing p or s element 
