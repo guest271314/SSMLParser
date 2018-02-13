@@ -47,7 +47,6 @@
           this.br();
           // handle `<sub>`
           this.sub();
-
           if (this.ssml.documentElement.attributes.getNamedItem("xml:lang").value.length) {
             if (this.ssml.documentElement.children.length === 0) {
               const utterance = new SpeechSynthesisUtterance(this.ssml.documentElement.textContent);
@@ -56,11 +55,9 @@
               });
             } else {
               for (let node of this.ssml.documentElement.childNodes) {
-
                 Reflect.apply(this.nodes.get(node.nodeName), this, [{
                   node
                 }])
-
               }
             }
           } else {
@@ -231,7 +228,7 @@
           }
         });
       }
-      // The specification does not explicitly define a pause in audio output.
+      // handle `<p>` element
       // https://www.w3.org/TR/2010/REC-speech-synthesis11-20100907/#S3.1.8.1
       // "A p element represents a paragraph. An s element represents a sentence."
       // "The use of p and s elements is optional. Where text occurs without an enclosing p or s element 
@@ -240,6 +237,7 @@
       // https://developer.amazon.com/docs/custom-skills/speech-synthesis-markup-language-ssml-reference.html#p
       // https://console.bluemix.net/docs/services/text-to-speech/SSML-elements.html#ps_element
       // https://developers.google.com/actions/reference/ssml#p+s
+      // https://docs.microsoft.com/en-us/cortana/skills/speech-synthesis-markup-language#p-and-s-element
       p({
         node, voice
       }) {
@@ -249,11 +247,12 @@
           if (voice) {
             utterance.voice = voice;
           }
-          this._break({_strength:this.strengths.get("x-strong")});
+          // The specification does not explicitly define a pause in audio output before and after a `<p>` element.
+          // this._break({_strength:this.strengths.get("weak")});
           this._queue({
             utterance
           });
-          this._break({_strength:this.strengths.get("x-strong")});
+          // this._break({_strength:this.strengths.get("weak")});
         } else {
           for (let childNode of node.childNodes) {
             Reflect.apply(this.nodes.get(childNode.nodeName), this, [{
@@ -263,7 +262,7 @@
           }
         }
       }
-      // The specification does not explicitly define a pause in audio output.
+      // handle `<s>` element
       // https://www.w3.org/TR/2010/REC-speech-synthesis11-20100907/#S3.1.8.1
       // "A p element represents a paragraph. An s element represents a sentence."
       // "The use of p and s elements is optional. Where text occurs without an enclosing p or s element 
@@ -272,6 +271,7 @@
       // https://developer.amazon.com/docs/custom-skills/speech-synthesis-markup-language-ssml-reference.html#s
       // https://console.bluemix.net/docs/services/text-to-speech/SSML-elements.html#ps_element
       // https://developers.google.com/actions/reference/ssml#p+s
+      // https://docs.microsoft.com/en-us/cortana/skills/speech-synthesis-markup-language#p-and-s-elements
       s({
         node, voice
       }) {
@@ -281,11 +281,12 @@
           if (voice) {
             utterance.voice = voice;
           }
-          this._break({_strength:this.strengths.get("strong")});
+          // The specification does not explicitly define a pause in audio output before and after a `<s>` element.
+          // this._break({_strength:this.strengths.get("x-weak")});
           this._queue({
             utterance
           });
-          this._break({_strength:this.strengths.get("strong")});
+          // this._break({_strength:this.strengths.get("x-weak")});
         } else {
           for (let childNode of node.childNodes) {
             Reflect.apply(this.nodes.get(childNode.nodeName), this, [{
