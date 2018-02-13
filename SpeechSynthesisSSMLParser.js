@@ -301,3 +301,26 @@
         }
       }
     }
+
+     /*
+     // usage
+     const handleVoicesChanged = async() => {
+       console.log("voiceschanged");
+       window.speechSynthesis.onvoiceschanged = null;
+       SpeechSynthesisSSMLParser.voices = window.speechSynthesis.getVoices();
+       console.log(SpeechSynthesisSSMLParser.voices);
+       let ssml = `<?xml version="1.0"?><speak version="1.1"
+        xmlns="http://www.w3.org/2001/10/synthesis"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.w3.org/2001/10/synthesis http://www.w3.org/TR/speech-synthesis11/synthesis.xsd"
+        xml:lang="en-US">
+        <voice name="english-us+klatt4" languages="en-US" required="name"><prosody pitch="0.67" contour="" range="" rate="default" duration="" volume="">The Golden Ratio</prosody><break strength="weak" time="350ms"/> ${(1 + Math.sqrt(5)) / 2}</voice>
+       </speak>`;
+       for (let utterance of new SpeechSynthesisSSMLParser(ssml).queue) {
+         await utterance();
+       }
+     }
+     
+     window.speechSynthesis.onvoiceschanged = handleVoicesChanged;
+     SpeechSynthesisSSMLParser.voices = window.speechSynthesis.getVoices();
+     */
