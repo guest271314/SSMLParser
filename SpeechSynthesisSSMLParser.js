@@ -229,11 +229,13 @@
         });
       }
       // handle `<p>` element
+      // The specification does appear to explicitly define a change to prosody, 
+      // or a pause in audio output before and after, or pause only after a `<p>` element.
       // https://www.w3.org/TR/2010/REC-speech-synthesis11-20100907/#S3.1.8.1
       // "A p element represents a paragraph. An s element represents a sentence."
       // "The use of p and s elements is optional. Where text occurs without an enclosing p or s element 
       // the synthesis processor should attempt to determine the structure using language-specific knowledge of the format of plain text."
-      // see also:
+      // see also
       // https://developer.amazon.com/docs/custom-skills/speech-synthesis-markup-language-ssml-reference.html#p
       // https://console.bluemix.net/docs/services/text-to-speech/SSML-elements.html#ps_element
       // https://developers.google.com/actions/reference/ssml#p+s
@@ -247,7 +249,8 @@
           if (voice) {
             utterance.voice = voice;
           }
-          // The specification does not explicitly define a pause in audio output before and after a `<p>` element.
+          // The specification does appear to explicitly define a change to prosody, 
+          // or a pause in audio output before and after, or pause only after a `<p>` element.
           // this._break({_strength:this.strengths.get("weak")});
           this._queue({
             utterance
@@ -263,11 +266,13 @@
         }
       }
       // handle `<s>` element
+      // The specification does appear to explicitly define a change to prosody, 
+      // or a pause in audio output before and after, or pause only after a `<p>` element.
       // https://www.w3.org/TR/2010/REC-speech-synthesis11-20100907/#S3.1.8.1
       // "A p element represents a paragraph. An s element represents a sentence."
       // "The use of p and s elements is optional. Where text occurs without an enclosing p or s element 
       // the synthesis processor should attempt to determine the structure using language-specific knowledge of the format of plain text."
-      // see also:
+      // see also
       // https://developer.amazon.com/docs/custom-skills/speech-synthesis-markup-language-ssml-reference.html#s
       // https://console.bluemix.net/docs/services/text-to-speech/SSML-elements.html#ps_element
       // https://developers.google.com/actions/reference/ssml#p+s
@@ -281,7 +286,6 @@
           if (voice) {
             utterance.voice = voice;
           }
-          // The specification does not explicitly define a pause in audio output before and after a `<s>` element.
           // this._break({_strength:this.strengths.get("x-weak")});
           this._queue({
             utterance
