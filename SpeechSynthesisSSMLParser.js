@@ -135,11 +135,18 @@ class SpeechSynthesisSSMLParser {
   _break({
     node, _strength
   }) {
-    let strength = !node ? _strength // handle `<p>` and `<s>` elements
-      : node.getAttribute("strength") ? this.strengths.get(node.getAttribute("strength")) : node.getAttribute("time") ? this.strengths.get("none") : this.strengths.get("medium");
+    let strength = !node 
+                   ? _strength // handle `<p>` and `<s>` elements
+                   : node.getAttribute("strength") 
+                     ? this.strengths.get(node.getAttribute("strength")) 
+                     : node.getAttribute("time") 
+                       ? this.strengths.get("none") 
+                       : this.strengths.get("medium");
     // handle "250ms", "3s"
-    let time = node && node.getAttribute("time") ? node.getAttribute("time").match(/[\d.]+|\w+$/g)
-      .reduce((n, t) => Number(n) * (t === "s" ? 1 : .001)) : this.strengths.get("none");
+    let time = node && node.getAttribute("time") 
+               ? node.getAttribute("time").match(/[\d.]+|\w+$/g)
+                 .reduce((n, t) => Number(n) * (t === "s" ? 1 : .001)) 
+               : this.strengths.get("none");
     console.log(strength, time);
     // https://www.w3.org/TR/2010/REC-speech-synthesis11-20100907/#S3.2.3
     // "If both strength and time attributes are supplied, 
@@ -211,10 +218,13 @@ class SpeechSynthesisSSMLParser {
       // which can be used to prevent a prosodic break which the processor would otherwise produce."
       this.ssml.querySelectorAll("break").forEach(br => {
         if (br.getAttribute("strength") === "none") {
-          if (br.nextSibling && br.nextSibling.nodeName === "#text" && br.previousSibling && br.previousSibling.nodeName === "#text") {
-            br.previousSibling.nodeValue += br.nextSibling.nodeValue;
-            br.parentNode.removeChild(br.nextSibling);
-            br.parentNode.removeChild(br);
+          if (br.nextSibling 
+              && br.nextSibling.nodeName === "#text" 
+              && br.previousSibling 
+              && br.previousSibling.nodeName === "#text") {
+                br.previousSibling.nodeValue += br.nextSibling.nodeValue;
+                br.parentNode.removeChild(br.nextSibling);
+                br.parentNode.removeChild(br);
           } else {
             br.parentNode.removeChild(br);
           }
