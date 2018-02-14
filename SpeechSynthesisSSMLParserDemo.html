@@ -2,7 +2,7 @@
 <html>
 
 <head>
-  <title>SpeechSynthesisSSMLParser.js</title>
+  <title>SpeechSynthesisSSMLParser</title>
   <script>
     // SpeechSynthesisSSMLParser.js guest271314 12-17-2017
     // Motivation: Implement SSML parsing for Web Speech API
@@ -160,11 +160,18 @@
       _break({
         node, _strength
       }) {
-        let strength = !node ? _strength // handle `<p>` and `<s>` elements
-          : node.getAttribute("strength") ? this.strengths.get(node.getAttribute("strength")) : node.getAttribute("time") ? this.strengths.get("none") : this.strengths.get("medium");
+        let strength = !node 
+                       ? _strength // handle `<p>` and `<s>` elements
+                       : node.getAttribute("strength") 
+                         ? this.strengths.get(node.getAttribute("strength")) 
+                         : node.getAttribute("time") 
+                           ? this.strengths.get("none") 
+                           : this.strengths.get("medium");
         // handle "250ms", "3s"
-        let time = node && node.getAttribute("time") ? node.getAttribute("time").match(/[\d.]+|\w+$/g)
-          .reduce((n, t /* "ms" or "s" */ ) => Number(n) * (t === "s" ? 1 : .001)) : this.strengths.get("none");
+        let time = node && node.getAttribute("time") 
+                   ? node.getAttribute("time").match(/[\d.]+|\w+$/g)
+                     .reduce((n, t /* "ms" or "s" */ ) => Number(n) * (t === "s" ? 1 : .001)) 
+                   : this.strengths.get("none");
         console.log(strength, time);
         // https://www.w3.org/TR/2010/REC-speech-synthesis11-20100907/#S3.2.3
         // "If both strength and time attributes are supplied, 
@@ -236,10 +243,12 @@
           // which can be used to prevent a prosodic break which the processor would otherwise produce."
           this.ssml.querySelectorAll("break").forEach(br => {
             if (br.getAttribute("strength") === "none") {
-              if (br.nextSibling && br.nextSibling.nodeName === "#text" && br.previousSibling && br.previousSibling.nodeName === "#text") {
-                br.previousSibling.nodeValue += br.nextSibling.nodeValue;
-                br.parentNode.removeChild(br.nextSibling);
-                br.parentNode.removeChild(br);
+              if (br.nextSibling && br.nextSibling.nodeName === "#text" 
+                  && br.previousSibling 
+                  && br.previousSibling.nodeName === "#text") {
+                    br.previousSibling.nodeValue += br.nextSibling.nodeValue;
+                    br.parentNode.removeChild(br.nextSibling);
+                    br.parentNode.removeChild(br);
               } else {
                 br.parentNode.removeChild(br);
               }
@@ -251,9 +260,8 @@
         // or a pause in audio output before and after, or pause only after a `<p>` element.
         // https://www.w3.org/TR/2010/REC-speech-synthesis11-20100907/#S3.1.8.1
         // "A p element represents a paragraph. An s element represents a sentence."
-        // "The use of p and s elements is optional. 
-        // Where text occurs without an enclosing p or s element the synthesis processor 
-        // should attempt to determine the structure using language-specific knowledge of the format of plain text."
+        // "The use of p and s elements is optional. Where text occurs without an enclosing p or s element 
+        // the synthesis processor should attempt to determine the structure using language-specific knowledge of the format of plain text."
       p({
           node, voice
         }) {
@@ -329,7 +337,7 @@
           })
         }
         if (interpretAs === "date") {
-
+          const utterance = new SpeechSynthesisUtterance();
           node.textContent = node.textContent.replace(this.notSayAsDateFormat, "");
 
           if (node.getAttribute("format")) {
@@ -357,16 +365,28 @@
                 type, value
               }) => [type, value]));
 
-            const text = `${format.includes("m") ? date.get("month") : ""} ` + `${format.includes("d") ? this.toOrdinal(date.get("day")).concat(format.includes("y") ? date.get("literal") : "")  : ""}` + `${format.includes("y") ? date.get("year") : ""}`;
+            const text = `${format.includes("m") 
+                            ? date.get("month") 
+                            : ""
+                          } ` 
+                          + `${format.includes("d") 
+                               ? this.toOrdinal(date.get("day")) 
+                                 .concat(format.includes("y") ? date.get("literal") : "")
+                               : ""
+                          }` 
+                          + `${format.includes("y") 
+                              ? date.get("year") 
+                              : ""
+                             }`;
 
             console.log(month, day, year, date, text);
 
-            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.text = text;
             this._queue({
               utterance
             });
           } else {
-            const utterance = new SpeechSynthesisUtterance(node.textContent);
+            utterance.text = node.textContent;
             this._queue({
               utterance
             });
@@ -376,6 +396,7 @@
         }
       }
       toOrdinal(n) {
+        // https://stackoverflow.com/q/13627308
         // https://codegolf.stackexchange.com/a/119563
         return n += [, "st", "nd", "rd"][n % 100 >> 3 ^ 1 && n % 10] || "th";
       }
@@ -468,3 +489,5 @@
 </body>
 
 </html>
+
+
