@@ -1,4 +1,4 @@
-// parseSSMLSayAsElementInterpretAsAttribute.js 2-12-2018 guest271314
+// parseSSMLSayAsElementInterpretAsCharactersDigitsCardinalOrdinal.js 2-12-2018 guest271314
 // https://github.com/guest271314/SpeechSynthesisSSMLParser
 // https://www.w3.org/TR/speech-synthesis11/#S3.1.9
 // https://www.w3.org/TR/2005/NOTE-ssml-sayas-20050526
