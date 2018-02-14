@@ -50,8 +50,7 @@
         this.notSayAsDateFormat = /[^\d.\-/]+/g;
         // https://codegolf.stackexchange.com/a/119563
         this.toOrdinal = n => n += [, "st", "nd", "rd"][n % 100 >> 3 ^ 1 && n % 10] || "th";
-        // https://stackoverflow.com/q/13627308
-          
+
         if (this.ssml && typeof this.ssml === "string") {
           this.ssml = (new DOMParser()).parseFromString(ssml, "application/xml");
         }
