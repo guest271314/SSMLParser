@@ -48,6 +48,7 @@
         this.lang = navigator.language;
         this.matchSayAsDateFormat = /\d+(?=[.\-/]|$)/g;
         this.notSayAsDateFormat = /[^\d.\-/]+/g;
+          
         // https://codegolf.stackexchange.com/a/119563
         this.toOrdinal = n => n += [, "st", "nd", "rd"][n % 100 >> 3 ^ 1 && n % 10] || "th";
 
