@@ -258,11 +258,6 @@
         // "A p element represents a paragraph. An s element represents a sentence."
         // "The use of p and s elements is optional. Where text occurs without an enclosing p or s element 
         // the synthesis processor should attempt to determine the structure using language-specific knowledge of the format of plain text."
-        // see also
-        // https://developer.amazon.com/docs/custom-skills/speech-synthesis-markup-language-ssml-reference.html#p
-        // https://console.bluemix.net/docs/services/text-to-speech/SSML-elements.html#ps_element
-        // https://developers.google.com/actions/reference/ssml#p+s
-        // https://docs.microsoft.com/en-us/cortana/skills/speech-synthesis-markup-language#p-and-s-element
       p({
           node, voice
         }) {
@@ -295,11 +290,6 @@
         // "A p element represents a paragraph. An s element represents a sentence."
         // "The use of p and s elements is optional. Where text occurs without an enclosing p or s element 
         // the synthesis processor should attempt to determine the structure using language-specific knowledge of the format of plain text."
-        // see also
-        // https://developer.amazon.com/docs/custom-skills/speech-synthesis-markup-language-ssml-reference.html#s
-        // https://console.bluemix.net/docs/services/text-to-speech/SSML-elements.html#ps_element
-        // https://developers.google.com/actions/reference/ssml#p+s
-        // https://docs.microsoft.com/en-us/cortana/skills/speech-synthesis-markup-language#p-and-s-elements
       s({
           node, voice
         }) {
