@@ -243,18 +243,13 @@
             }
           });
         }
-        // handle `<p>` element
+        // handle `<p>` element and `<s>` elements
         // The specification does appear to explicitly define a change to prosody, 
         // or a pause in audio output before and after, or pause only after a `<p>` element.
         // https://www.w3.org/TR/2010/REC-speech-synthesis11-20100907/#S3.1.8.1
         // "A p element represents a paragraph. An s element represents a sentence."
         // "The use of p and s elements is optional. Where text occurs without an enclosing p or s element 
         // the synthesis processor should attempt to determine the structure using language-specific knowledge of the format of plain text."
-        // see also
-        // https://developer.amazon.com/docs/custom-skills/speech-synthesis-markup-language-ssml-reference.html#p
-        // https://console.bluemix.net/docs/services/text-to-speech/SSML-elements.html#ps_element
-        // https://developers.google.com/actions/reference/ssml#p+s
-        // https://docs.microsoft.com/en-us/cortana/skills/speech-synthesis-markup-language#p-and-s-element
       p({
           node, voice
         }) {
@@ -280,18 +275,6 @@
             }
           }
         }
-        // handle `<s>` element
-        // The specification does not explicitly define a change to prosody, 
-        // or a pause in audio output before and after, or pause only after a `<s>` element.
-        // https://www.w3.org/TR/2010/REC-speech-synthesis11-20100907/#S3.1.8.1
-        // "A p element represents a paragraph. An s element represents a sentence."
-        // "The use of p and s elements is optional. Where text occurs without an enclosing p or s element 
-        // the synthesis processor should attempt to determine the structure using language-specific knowledge of the format of plain text."
-        // see also
-        // https://developer.amazon.com/docs/custom-skills/speech-synthesis-markup-language-ssml-reference.html#s
-        // https://console.bluemix.net/docs/services/text-to-speech/SSML-elements.html#ps_element
-        // https://developers.google.com/actions/reference/ssml#p+s
-        // https://docs.microsoft.com/en-us/cortana/skills/speech-synthesis-markup-language#p-and-s-elements
       s({
           node, voice
         }) {
@@ -315,7 +298,7 @@
             }
           }
         }
-        // https://www.w3.org/TR/2005/NOTE-ssml-sayas-20050526
+      // https://www.w3.org/TR/2005/NOTE-ssml-sayas-20050526
       sayAs({
         node, voice
       }) {
@@ -397,7 +380,6 @@
             });
 
           }
-
         }
       }
       
