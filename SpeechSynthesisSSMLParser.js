@@ -162,11 +162,10 @@
                            ? this.strengths.get("none") 
                            : this.strengths.get("medium");
         // handle "250ms", "3s"
-        let time = node 
-                   && node.getAttribute("time") 
-                      ? node.getAttribute("time").match(/[\d.]+|\w+$/g)
-                        .reduce((n, t) => Number(n) * (t === "s" ? 1 : .001)) 
-                        : this.strengths.get("none");
+        let time = node && node.getAttribute("time") 
+                   ? node.getAttribute("time").match(/[\d.]+|\w+$/g)
+                     .reduce((n, t /* "ms" or "s" */ ) => Number(n) * (t === "s" ? 1 : .001)) 
+                   : this.strengths.get("none");
         console.log(strength, time);
         // https://www.w3.org/TR/2010/REC-speech-synthesis11-20100907/#S3.2.3
         // "If both strength and time attributes are supplied, 
@@ -238,8 +237,7 @@
           // which can be used to prevent a prosodic break which the processor would otherwise produce."
           this.ssml.querySelectorAll("break").forEach(br => {
             if (br.getAttribute("strength") === "none") {
-              if (br.nextSibling 
-                  && br.nextSibling.nodeName === "#text" 
+              if (br.nextSibling && br.nextSibling.nodeName === "#text" 
                   && br.previousSibling 
                   && br.previousSibling.nodeName === "#text") {
                     br.previousSibling.nodeValue += br.nextSibling.nodeValue;
@@ -283,7 +281,7 @@
             }
           }
         }
-      // handle `<s>` element
+        // handle `<s>` element
       s({
           node, voice
         }) {
@@ -333,7 +331,7 @@
           })
         }
         if (interpretAs === "date") {
-
+          const utterance = new SpeechSynthesisUtterance();
           node.textContent = node.textContent.replace(this.notSayAsDateFormat, "");
 
           if (node.getAttribute("format")) {
@@ -361,18 +359,28 @@
                 type, value
               }) => [type, value]));
 
-            const text = `${format.includes("m") ? date.get("month") : ""} ` 
-                         + `${format.includes("d") ? this.toOrdinal(date.get("day")).concat(format.includes("y") ? date.get("literal") : "")  : ""}` 
-                         + `${format.includes("y") ? date.get("year") : ""}`;
+            const text = `${format.includes("m") 
+                            ? date.get("month") 
+                            : ""
+                          } ` 
+                          + `${format.includes("d") 
+                               ? this.toOrdinal(date.get("day")) 
+                                 .concat(format.includes("y") ? date.get("literal") : "")
+                               : ""
+                          }` 
+                          + `${format.includes("y") 
+                              ? date.get("year") 
+                              : ""
+                             }`;
 
             console.log(month, day, year, date, text);
 
-            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.text = text;
             this._queue({
               utterance
             });
           } else {
-            const utterance = new SpeechSynthesisUtterance(node.textContent);
+            utterance.text = node.textContent;
             this._queue({
               utterance
             });
@@ -382,6 +390,7 @@
         }
       }
       toOrdinal(n) {
+        // https://stackoverflow.com/q/13627308
         // https://codegolf.stackexchange.com/a/119563
         return n += [, "st", "nd", "rd"][n % 100 >> 3 ^ 1 && n % 10] || "th";
       }
