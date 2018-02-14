@@ -45,10 +45,13 @@
           "d": "day",
           "y": "year"
         }));
+        this.lang = navigator.language;
         this.matchSayAsDateFormat = /\d+(?=[.\-/]|$)/g;
         this.notSayAsDateFormat = /[^\d.\-/]+/g;
-        this.lang = navigator.language;
-
+        // https://codegolf.stackexchange.com/a/119563
+        this.toOrdinal = n => n += [, "st", "nd", "rd"][n % 100 >> 3 ^ 1 && n % 10] || "th";
+        // https://stackoverflow.com/q/13627308
+          
         if (this.ssml && typeof this.ssml === "string") {
           this.ssml = (new DOMParser()).parseFromString(ssml, "application/xml");
         }
@@ -58,7 +61,7 @@
           // handle `<sub alias="Speech Synthesis Markup Language">SSML</sub>`
           this.sub();
           if (this.ssml.documentElement.attributes.getNamedItem("xml:lang").value.length) {
-            this.lang = this.ssml.documentElement.attributes.getNamedItem("xml:lang");
+            this.lang = this.ssml.documentElement.attributes.getNamedItem("xml:lang").value;
           } else {
             this.lang = navigator.language;
           }
@@ -154,18 +157,11 @@
       _break({
         node, _strength
       }) {
-        let strength = !node 
-                       ? _strength // handle `<p>` and `<s>` elements
-                       : node.getAttribute("strength") 
-                         ? this.strengths.get(node.getAttribute("strength")) 
-                         : node.getAttribute("time") 
-                           ? this.strengths.get("none") 
-                           : this.strengths.get("medium");
+        let strength = !node ? _strength // handle `<p>` and `<s>` elements
+          : node.getAttribute("strength") ? this.strengths.get(node.getAttribute("strength")) : node.getAttribute("time") ? this.strengths.get("none") : this.strengths.get("medium");
         // handle "250ms", "3s"
-        let time = node && node.getAttribute("time") 
-                   ? node.getAttribute("time").match(/[\d.]+|\w+$/g)
-                     .reduce((n, t /* "ms" or "s" */ ) => Number(n) * (t === "s" ? 1 : .001)) 
-                   : this.strengths.get("none");
+        let time = node && node.getAttribute("time") ? node.getAttribute("time").match(/[\d.]+|\w+$/g)
+          .reduce((n, t /* "ms" or "s" */ ) => Number(n) * (t === "s" ? 1 : .001)) : this.strengths.get("none");
         console.log(strength, time);
         // https://www.w3.org/TR/2010/REC-speech-synthesis11-20100907/#S3.2.3
         // "If both strength and time attributes are supplied, 
@@ -237,12 +233,10 @@
           // which can be used to prevent a prosodic break which the processor would otherwise produce."
           this.ssml.querySelectorAll("break").forEach(br => {
             if (br.getAttribute("strength") === "none") {
-              if (br.nextSibling && br.nextSibling.nodeName === "#text" 
-                  && br.previousSibling 
-                  && br.previousSibling.nodeName === "#text") {
-                    br.previousSibling.nodeValue += br.nextSibling.nodeValue;
-                    br.parentNode.removeChild(br.nextSibling);
-                    br.parentNode.removeChild(br);
+              if (br.nextSibling && br.nextSibling.nodeName === "#text" && br.previousSibling && br.previousSibling.nodeName === "#text") {
+                br.previousSibling.nodeValue += br.nextSibling.nodeValue;
+                br.parentNode.removeChild(br.nextSibling);
+                br.parentNode.removeChild(br);
               } else {
                 br.parentNode.removeChild(br);
               }
@@ -256,6 +250,11 @@
         // "A p element represents a paragraph. An s element represents a sentence."
         // "The use of p and s elements is optional. Where text occurs without an enclosing p or s element 
         // the synthesis processor should attempt to determine the structure using language-specific knowledge of the format of plain text."
+        // see also
+        // https://developer.amazon.com/docs/custom-skills/speech-synthesis-markup-language-ssml-reference.html#p
+        // https://console.bluemix.net/docs/services/text-to-speech/SSML-elements.html#ps_element
+        // https://developers.google.com/actions/reference/ssml#p+s
+        // https://docs.microsoft.com/en-us/cortana/skills/speech-synthesis-markup-language#p-and-s-element
       p({
           node, voice
         }) {
@@ -282,6 +281,17 @@
           }
         }
         // handle `<s>` element
+        // The specification does not explicitly define a change to prosody, 
+        // or a pause in audio output before and after, or pause only after a `<s>` element.
+        // https://www.w3.org/TR/2010/REC-speech-synthesis11-20100907/#S3.1.8.1
+        // "A p element represents a paragraph. An s element represents a sentence."
+        // "The use of p and s elements is optional. Where text occurs without an enclosing p or s element 
+        // the synthesis processor should attempt to determine the structure using language-specific knowledge of the format of plain text."
+        // see also
+        // https://developer.amazon.com/docs/custom-skills/speech-synthesis-markup-language-ssml-reference.html#s
+        // https://console.bluemix.net/docs/services/text-to-speech/SSML-elements.html#ps_element
+        // https://developers.google.com/actions/reference/ssml#p+s
+        // https://docs.microsoft.com/en-us/cortana/skills/speech-synthesis-markup-language#p-and-s-elements
       s({
           node, voice
         }) {
@@ -359,6 +369,7 @@
                 type, value
               }) => [type, value]));
 
+
             const text = `${format.includes("m") 
                             ? date.get("month") 
                             : ""
@@ -384,13 +395,12 @@
             this._queue({
               utterance
             });
+
           }
+
         }
       }
-      toOrdinal(n) {
-        // https://codegolf.stackexchange.com/a/119563
-        return n += [, "st", "nd", "rd"][n % 100 >> 3 ^ 1 && n % 10] || "th";
-      }
+      
     }
 
      /*
@@ -405,7 +415,10 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://www.w3.org/2001/10/synthesis http://www.w3.org/TR/speech-synthesis11/synthesis.xsd"
         xml:lang="en-US">
-        <voice name="english-us+klatt4" languages="en-US" required="name"><prosody pitch="0.67" contour="" range="" rate="default" duration="" volume="">The Golden Ratio</prosody><break strength="weak" time="350ms"/> ${(1 + Math.sqrt(5)) / 2}</voice>
+        <voice name="english-us+klatt4" languages="en-US" required="name">
+          <prosody pitch="0.67" contour="" range="" rate="default" duration="" volume="">The Golden Ratio</prosody><break strength="weak" time="350ms"/>
+          ${(1 + Math.sqrt(5)) / 2}
+        </voice>
        </speak>`;
        for (let utterance of new SpeechSynthesisSSMLParser(ssml).queue) {
          await utterance();
