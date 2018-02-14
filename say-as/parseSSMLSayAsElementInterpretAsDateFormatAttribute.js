@@ -10,7 +10,6 @@
 // https://lists.w3.org/Archives/Public/public-speech-api/2017Dec/0000.html
 // https://github.com/w3c/web-platform-tests/issues/8795
 
-// https://stackoverflow.com/q/13627308
 // https://codegolf.stackexchange.com/a/119563
 const toOrdinal = n => n += [, "st", "nd", "rd"][n % 100 >> 3 ^ 1 && n % 10] || "th";
 
