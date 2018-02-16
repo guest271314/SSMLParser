@@ -45,9 +45,15 @@
           "d": "day",
           "y": "year"
         }));
+        this.ampm = new Map(Object.entries({
+            a: "AM",
+            p: "PM"
+          }));
         this.lang = navigator.language;
         this.matchSayAsDateFormat = /\d+(?=[.\-/]|$)/g;
         this.notSayAsDateFormat = /[^\d.\-/]+/g;
+        this.matchSayAsTimeDigits = /\d+/g;
+        this.matchSayAsTimeAP = /[ap]/i;
           
         // https://codegolf.stackexchange.com/a/119563
         this.toOrdinal = n => n += [, "st", "nd", "rd"][n % 100 >> 3 ^ 1 && n % 10] || "th";
@@ -381,8 +387,96 @@
 
           }
         }
+        // https://www.w3.org/TR/ssml-sayas/#time
+        if (interpretAs === "time") {
+
+          if (node.getAttribute("format")) {
+
+            const format = node.getAttribute("format");
+
+            let t = node.textContent.match(this.matchSayAsTimeDigits);
+
+            const ampm = node.textContent.match(this.matchSayAsTimeAP);
+          
+            let text = "";
+
+            if (t[0].length === 3) {
+              t = [t[0].slice(0, 1), t[0].slice(1)];
+            }
+
+            if (t[0].length === 4) {
+              t = [t[0].slice(0, 2), t[0].slice(2)];
+            }
+
+            console.log(t);
+
+            const date = new Date(...[1970,0,1].concat(...t).map(Number));
+
+            console.log(date);
+
+            const time = new Map(
+              new Intl.DateTimeFormat(this.lang, {
+                hour: "numeric",
+                minute: "numeric",
+                second: "numeric",
+                timeZoneName: "long",
+                hourCycle: "h24"
+              })
+              .formatToParts(date)
+              .map(({
+                type, value
+              }) => [type, value])
+              .concat([
+                ["millisecond", date.getMilliseconds()]
+              ]));
+
+            if (ampm && ampm.length) {
+              time.set("dayperiod", this.ampm.get(ampm.pop().toLowerCase()))
+            }
+          
+            text += `${Number(time.get("hour"))}`;
+          
+            if ( Number(time.get("minute")) ) {
+              if ( Number(time.get("minute")) < 10) {
+                // `O` : zero
+                text += ` O ${Number(time.get("minute"))}`;
+              } else {
+                text += `:${time.get("minute")}`;
+              }
+            }
+          
+            if (Number(time.get("second"))) {
+              text += ` and ${Number(time.get("second"))}${Number(time.get("millisecond")) 
+                      ? "." + time.get("millisecond") + " " 
+                      : " "}second${Number(time.get("second")) ? "s" : ""}`;
+            }
+          
+            if (format === "hms24") {
+              text += ` ${time.get("dayperiod")} ${time.get("timeZoneName")}`;
+            }
+          
+            if (format === "hms12") {
+              if (!this.matchSayAsTimeAP.test(text) && !ampm) {
+                text += " o'clock";
+              } else {
+                text += ` ${time.get("dayperiod")}`;
+              }
+            }
+          
+            console.log(ampm, time);
+
+            const utterance = new SpeechSynthesisUtterance(text);
+            this._queue({
+              utterance
+            });
+          } else {
+            const utterance = new SpeechSynthesisUtterance(node.textContent);
+              this._queue({
+                utterance
+              });
+          }
+        }
       }
-      
     }
 
      /*
