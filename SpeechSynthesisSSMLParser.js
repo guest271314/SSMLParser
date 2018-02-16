@@ -459,7 +459,9 @@
               if (!this.matchSayAsTimeAP.test(text) && !ampm) {
                 text += " o'clock";
               } else {
-                text += ` ${time.get("dayperiod")}`;
+                if (ampm) {
+                  text += ` ${time.get("dayperiod")}`;
+                }
               }
             }
           
