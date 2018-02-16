@@ -436,8 +436,8 @@
           
             text += `${Number(time.get("hour"))}`;
           
-            if ( Number(time.get("minute")) ) {
-              if ( Number(time.get("minute")) < 10) {
+            if (Number(time.get("minute")) ) {
+              if (Number(time.get("minute")) < 10) {
                 // `O` : zero
                 text += ` O ${Number(time.get("minute"))}`;
               } else {
