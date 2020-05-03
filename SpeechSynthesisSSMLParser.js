@@ -1,4 +1,4 @@
-    // SpeechSynthesisSSMLParser.js guest271314 12-17-2017
+   // SpeechSynthesisSSMLParser.js guest271314 12-17-2017 Updated 2-15-2018
     // Motivation: Implement SSML parsing for Web Speech API
     // See https://lists.w3.org/Archives/Public/www-voice/2017OctDec/0000.html
     // https://github.com/guest271314/SpeechSynthesisSSMLParser
@@ -135,17 +135,17 @@
             [nodeName]: nodeValue
           }), Object.create(null)), node.textContent
         ];
-        const names = SpeechSynthesisSSMLParser.voices.filter(({
+        const v = SpeechSynthesisSSMLParser.voices.find(({
           name: voiceName
-        }) => voiceName.indexOf(name) > -1);
+        }) => voiceName === name);
+        console.log(v, name);
         if (node.children.length === 0) {
           const utterance = new SpeechSynthesisUtterance();
           if (node.getAttribute("languages")) {
             utterance.lang = node.getAttribute("languages");
           }
-          console.log(names);
           Object.assign(utterance, {
-            voice: names[0],
+            voice:v,
             text
           });
           this._queue({
@@ -155,10 +155,11 @@
           for (let childNode of node.childNodes) {
             Reflect.apply(this.nodes.get(childNode.nodeName), this, [{
               node: childNode,
-              voice: names[0]
+              voice: v 
             }]);
           }
         }
+        
       }
       _break({
         node, _strength
@@ -197,6 +198,11 @@
       }) {
         if (utterance && utterance instanceof SpeechSynthesisUtterance) {
           this.queue.push(() => new Promise(resolve => {
+            
+            if (utterance.voice === null) {
+               utterance.voice = SpeechSynthesisSSMLParser.voices.find(({name}) => new RegExp(`^${navigator.languages[0].split('-')[0]}`, 'i').test(name))
+            }
+            console.log(utterance.voice.name);
             utterance.onend = resolve;
             window.speechSynthesis.speak(
               utterance
@@ -250,7 +256,7 @@
           });
         }
         // handle `<p>` element and `<s>` elements
-        // The specification does appear to explicitly define a change to prosody, 
+        // The specification does not appear to explicitly define a change to prosody, 
         // or a pause in audio output before and after, or pause only after a `<p>` element.
         // https://www.w3.org/TR/2010/REC-speech-synthesis11-20100907/#S3.1.8.1
         // "A p element represents a paragraph. An s element represents a sentence."
@@ -265,7 +271,7 @@
             if (voice) {
               utterance.voice = voice;
             }
-            // The specification does appear to explicitly define a change to prosody, 
+            // The specification does not appear to explicitly define a change to prosody, 
             // or a pause in audio output before and after, or pause only after a `<p>` element.
             // this._break({_strength:this.strengths.get("weak")});
             this._queue({
@@ -483,10 +489,11 @@
 
      /*
      // usage
+     const synth = window.speechSynthesis;
      const handleVoicesChanged = async() => {
        console.log("voiceschanged");
-       window.speechSynthesis.onvoiceschanged = null;
-       SpeechSynthesisSSMLParser.voices = window.speechSynthesis.getVoices();
+       synth.onvoiceschanged = null;
+       SpeechSynthesisSSMLParser.voices = synth.getVoices();
        console.log(SpeechSynthesisSSMLParser.voices);
        let ssml = `<?xml version="1.0"?><speak version="1.1"
         xmlns="http://www.w3.org/2001/10/synthesis"
@@ -503,6 +510,6 @@
        }
      }
      
-     window.speechSynthesis.onvoiceschanged = handleVoicesChanged;
-     SpeechSynthesisSSMLParser.voices = window.speechSynthesis.getVoices();
+     synth.onvoiceschanged = handleVoicesChanged;
+     SpeechSynthesisSSMLParser.voices = synth.getVoices();
      */
