@@ -141,17 +141,17 @@
             [nodeName]: nodeValue
           }), Object.create(null)), node.textContent
         ];
-        const names = SpeechSynthesisSSMLParser.voices.filter(({
+        const v = SpeechSynthesisSSMLParser.voices.find(({
           name: voiceName
-        }) => voiceName.indexOf(name) > -1);
+        }) => voiceName === name);
+        console.log(v, name);
         if (node.children.length === 0) {
           const utterance = new SpeechSynthesisUtterance();
           if (node.getAttribute("languages")) {
             utterance.lang = node.getAttribute("languages");
           }
-          console.log(names);
           Object.assign(utterance, {
-            voice: names[0],
+            voice:v,
             text
           });
           this._queue({
@@ -161,10 +161,11 @@
           for (let childNode of node.childNodes) {
             Reflect.apply(this.nodes.get(childNode.nodeName), this, [{
               node: childNode,
-              voice: names[0]
+              voice: v 
             }]);
           }
         }
+        
       }
       _break({
         node, _strength
@@ -203,6 +204,11 @@
       }) {
         if (utterance && utterance instanceof SpeechSynthesisUtterance) {
           this.queue.push(() => new Promise(resolve => {
+            
+            if (utterance.voice === null) {
+               utterance.voice = SpeechSynthesisSSMLParser.voices.find(({name}) => new RegExp(`^${navigator.languages[0].split('-')[0]}`, 'i').test(name))
+            }
+            console.log(utterance.voice.name);
             utterance.onend = resolve;
             window.speechSynthesis.speak(
               utterance
@@ -488,12 +494,12 @@
     }
 
     
-  const ssmlStrings = [`<?xml version="1.0"?>
+  const ssml_input = [`<?xml version="1.0"?>
   <speak version="1.1"
        xmlns="http://www.w3.org/2001/10/synthesis"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.w3.org/2001/10/synthesis http://www.w3.org/TR/speech-synthesis11/synthesis.xsd"
-       xml:lang="en-US">
+       xml:lang="English">
        SSML samples using Web Speech API at <sub alias="Chromium">Cr</sub>  and <sub alias="Firefox">FF</sub> browsers.
   </speak>`, (new DOMParser()).parseFromString(`<?xml version="1.0"?>
        <speak version="1.1"
@@ -522,7 +528,7 @@
        xsi:schemaLocation="http://www.w3.org/2001/10/synthesis http://www.w3.org/TR/speech-synthesis11/synthesis.xsd"
        xml:lang="en-US">
        <prosody pitch="x-low" contour="" range="" rate="medium" duration="" volume="">The number e</prosody><break strength="strong"/>
-       <voice name="english_rp" languages="en-US" required="name">${Math.E}</voice>
+       <voice name="English_(America)+Storm espeak-ng" languages="en-US" required="name">${Math.E}</voice>
   </speak>`, `<?xml version="1.0"?>
   <speak version="1.1"
        xmlns="http://www.w3.org/2001/10/synthesis"
@@ -530,14 +536,14 @@
        xsi:schemaLocation="http://www.w3.org/2001/10/synthesis http://www.w3.org/TR/speech-synthesis11/synthesis.xsd"
        xml:lang="en-US">
        <prosody pitch="0.5" contour="" range="" rate="0.75" duration="" volume="">PI</prosody><break time="1s"/>
-       <voice name="english-us+klatt" languages="en-US" required="name">${Math.PI}</voice>
+       <voice name="English_(America)+klatt espeak-ng" languages="en-US" required="name">${Math.PI}</voice>
   </speak>`, `<?xml version="1.0"?>
   <speak version="1.1"
        xmlns="http://www.w3.org/2001/10/synthesis"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.w3.org/2001/10/synthesis http://www.w3.org/TR/speech-synthesis11/synthesis.xsd"
        xml:lang="en-US">
-       <voice name="english-us+klatt4" languages="en-US" required="name"><prosody pitch="0.67" contour="" range="" rate="default" duration="" volume="">The Golden Ratio</prosody><break strength="weak" time="350ms"/> ${(1 + Math.sqrt(5)) / 2}</voice>
+       <voice name="English_(Caribbean) espeak-ng" languages="en-US" required="name"><prosody pitch="0.67" contour="" range="" rate="default" duration="" volume="">The Golden Ratio</prosody><break strength="weak" time="350ms"/> ${(1 + Math.sqrt(5)) / 2}</voice>
   </speak>`, `<?xml version="1.0"?>
   <speak version="1.1"
        xmlns="http://www.w3.org/2001/10/synthesis"
@@ -553,21 +559,22 @@
        Time format <say-as interpret-as="characters">hms</say-as> 12 <say-as interpret-as="time" format="hms12">${new Date().toLocaleTimeString().replace(/[^\d:]/g, "")}</say-as>
   </speak>`
     ];
-
+    const synth = window.speechSynthesis;
+    synth.cancel();
     const handleVoicesChanged = async() => {
       console.log("voiceschanged");
-      window.speechSynthesis.onvoiceschanged = null;
-      SpeechSynthesisSSMLParser.voices = window.speechSynthesis.getVoices();
+      synth.onvoiceschanged = null;
+      SpeechSynthesisSSMLParser.voices = synth.getVoices();
       console.log(SpeechSynthesisSSMLParser.voices);
-      for (let ssml of ssmlStrings) {
+      for (let ssml of ssml_input) {
         for (let utterance of new SpeechSynthesisSSMLParser(ssml).queue) {
-          await utterance()
-        }
-      }
-    }
+          await utterance();
+        };
+      };
+    };
 
-    window.speechSynthesis.onvoiceschanged = handleVoicesChanged;
-    SpeechSynthesisSSMLParser.voices = window.speechSynthesis.getVoices();
+    synth.onvoiceschanged = handleVoicesChanged;
+    SpeechSynthesisSSMLParser.voices = synth.getVoices();
   </script>
 </head>
 
