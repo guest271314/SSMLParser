@@ -1,4 +1,4 @@
-   // SpeechSynthesisSSMLParser.js guest271314 12-17-2017 Updated 2-15-2018
+    // SpeechSynthesisSSMLParser.js guest271314 12-17-2017 Updated 2-15-2018
     // Motivation: Implement SSML parsing for Web Speech API
     // See https://lists.w3.org/Archives/Public/www-voice/2017OctDec/0000.html
     // https://github.com/guest271314/SpeechSynthesisSSMLParser
@@ -135,17 +135,17 @@
             [nodeName]: nodeValue
           }), Object.create(null)), node.textContent
         ];
-        const v = SpeechSynthesisSSMLParser.voices.find(({
+        const voice = SpeechSynthesisSSMLParser.voices.find(({
           name: voiceName
-        }) => voiceName === name);
-        console.log(v, name);
+        }) => voiceName === name || name.split(' ').shift() === voiceName);
+         console.log({name, voice});
         if (node.children.length === 0) {
           const utterance = new SpeechSynthesisUtterance();
           if (node.getAttribute("languages")) {
             utterance.lang = node.getAttribute("languages");
           }
           Object.assign(utterance, {
-            voice:v,
+            voice,
             text
           });
           this._queue({
@@ -155,7 +155,7 @@
           for (let childNode of node.childNodes) {
             Reflect.apply(this.nodes.get(childNode.nodeName), this, [{
               node: childNode,
-              voice: v 
+              voice
             }]);
           }
         }
@@ -512,4 +512,7 @@
      
      synth.onvoiceschanged = handleVoicesChanged;
      SpeechSynthesisSSMLParser.voices = synth.getVoices();
+     if (SpeechSynthesisSSMLParser.voices.length) {
+       handleVoicesChanged();
+     }
      */
