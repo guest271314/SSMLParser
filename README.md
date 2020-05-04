@@ -1,4 +1,4 @@
-# SpeechSynthesisSSMLParser
+# SSMLParser
 Implement SSML parsing for [Web Speech API](https://w3c.github.io/speech-api/speechapi.html)
 ----
 
