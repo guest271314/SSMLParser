@@ -565,7 +565,7 @@
       console.log("voiceschanged");
       synth.onvoiceschanged = null;
       SSMLParser.voices = synth.getVoices();
-      console.log(SpeechSynthesisSSMLParser.voices);
+      console.log(SSMLParser.voices);
       for (let ssml of ssml_input) {
         for (let utterance of new SSMLParser(ssml).queue) {
           await utterance();
