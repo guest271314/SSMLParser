@@ -135,7 +135,7 @@
             [nodeName]: nodeValue
           }), Object.create(null)), node.textContent
         ];
-        const voice = SpeechSynthesisSSMLParser.voices.find(({
+        const voice = SSMLParser.voices.find(({
           name: voiceName
         }) => voiceName === name || name.split(' ').shift() === voiceName);
          console.log({name, voice});
@@ -200,7 +200,7 @@
           this.queue.push(() => new Promise(resolve => {
             
             if (utterance.voice === null) {
-               utterance.voice = SpeechSynthesisSSMLParser.voices.find(({name}) => new RegExp(`^${navigator.languages[0].split('-')[0]}`, 'i').test(name))
+               utterance.voice = SSMLParser.voices.find(({name}) => new RegExp(`^${navigator.languages[0].split('-')[0]}`, 'i').test(name))
             }
             console.log(utterance.voice.name);
             utterance.onend = resolve;
