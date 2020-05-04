@@ -1,8 +1,8 @@
-    // SpeechSynthesisSSMLParser.js guest271314 12-17-2017 Updated 2-15-2018
+    // SSMLParser.js (SpeechSynthesisSSMLParser.js) guest271314 12-17-2017 Updated 5-4-2020
     // Motivation: Implement SSML parsing for Web Speech API
     // See https://lists.w3.org/Archives/Public/www-voice/2017OctDec/0000.html
     // https://github.com/guest271314/SpeechSynthesisSSMLParser
-    class SpeechSynthesisSSMLParser {
+    class SSMLParser {
       constructor(ssml) {
         console.log(this);
         this.ssml = ssml;
@@ -493,8 +493,8 @@
      const handleVoicesChanged = async() => {
        console.log("voiceschanged");
        synth.onvoiceschanged = null;
-       SpeechSynthesisSSMLParser.voices = synth.getVoices();
-       console.log(SpeechSynthesisSSMLParser.voices);
+       SSMLParser.voices = synth.getVoices();
+       console.log(SSMLParser.voices);
        let ssml = `<?xml version="1.0"?><speak version="1.1"
         xmlns="http://www.w3.org/2001/10/synthesis"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -505,14 +505,14 @@
           ${(1 + Math.sqrt(5)) / 2}
         </voice>
        </speak>`;
-       for (let utterance of new SpeechSynthesisSSMLParser(ssml).queue) {
+       for (let utterance of new SSMLParser(ssml).queue) {
          await utterance();
        }
      }
      
      synth.onvoiceschanged = handleVoicesChanged;
-     SpeechSynthesisSSMLParser.voices = synth.getVoices();
-     if (SpeechSynthesisSSMLParser.voices.length) {
+     SSMLParser.voices = synth.getVoices();
+     if (SSMLParser.voices.length) {
        handleVoicesChanged();
      }
      */
