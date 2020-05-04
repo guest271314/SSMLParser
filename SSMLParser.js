@@ -2,6 +2,29 @@
       // Motivation: Implement SSML parsing for Web Speech API
       // See https://lists.w3.org/Archives/Public/www-voice/2017OctDec/0000.html
       // https://github.com/guest271314/SSMLParser
+      // usage
+      /*
+         const synth = window.speechSynthesis;
+         const handleVoicesChanged = async() => {
+           synth.onvoiceschanged = null;
+           SSMLParser.voices = synth.getVoices();
+           let ssml = `<speak>
+             <voice name="english-us+klatt4" languages="en-US" required="name">
+               <prosody pitch="0.67" contour="" range="" rate="default" duration="" volume="">The Golden Ratio</prosody>
+               <break strength="weak" time="350ms"/>
+                 ${(1 + Math.sqrt(5)) / 2}
+             </voice>
+           </speak>`;
+           for (let utterance of new SSMLParser(ssml).queue) {
+             await utterance();
+           }
+         }   
+         synth.onvoiceschanged = handleVoicesChanged;
+         SSMLParser.voices = synth.getVoices();
+         if (SSMLParser.voices.length) {
+           handleVoicesChanged();
+         }
+     */
       class SSMLParser {
         constructor(ssml) {
           console.log(this);
