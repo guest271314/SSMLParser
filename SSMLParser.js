@@ -15,7 +15,7 @@
                  ${(1 + Math.sqrt(5)) / 2}
              </voice>
            </speak>`;
-           for (let utterance of new SSMLParser(ssml).queue) {
+           for (const utterance of new SSMLParser(ssml).queue) {
              await utterance();
            }
          }   
@@ -190,7 +190,7 @@
             node.textContent,
           ];
           const voice = SSMLParser.voices.find(
-            ({ name: voiceName }) =>
+            ({ name: voiceName, lang }) =>
               voiceName === name || voiceName.includes(name)
           );
           console.log(name, voice);
@@ -269,12 +269,19 @@
               () =>
                 new Promise(resolve => {
                   if (utterance.voice === null) {
-                    utterance.voice = SSMLParser.voices.find(({ name }) =>
-                      new RegExp(
-                        `^${navigator.languages[0].split('-')[0]}`,
-                        'i'
-                      ).test(name)
-                    );
+                    utterance.voice =
+                      SSMLParser.voices.find(({ name }) =>
+                        new RegExp('^English_\\(America\\)(\s|$)').test(name)
+                      ) ||
+                      SSMLParser.voices.find(({ lang }) =>
+                        new RegExp(`^${navigator.language}`, 'i').test(lang)
+                      ) ||
+                      SSMLParser.voices.find(({ name }) =>
+                        new RegExp(
+                          `^${navigator.languages.join('|^')}`,
+                          'i'
+                        ).test(name)
+                      );
                   }
                   console.log(utterance.voice.name);
                   utterance.onend = resolve;
