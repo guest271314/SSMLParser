@@ -173,7 +173,7 @@
             node.textContent,
           ];
           const voice = SSMLParser.voices.find(
-            ({ name: voiceName }) =>
+            ({ name: voiceName, lang }) =>
               voiceName === name || voiceName.includes(name)
           );
           console.log(name, voice);
@@ -252,13 +252,19 @@
               () =>
                 new Promise(resolve => {
                   if (utterance.voice === null) {
-                    utterance.voice = SSMLParser.voices.find(({ lang }) =>
-                      new RegExp(`^${navigator.language}`, 'i').test(
-                        lang
-                      )) || SSMLParser.voices.find(({ name }) =>
-                      new RegExp(`^${navigator.languages.join('|^')}`, 'i').test(
-                        name
-                      ));                   
+                    utterance.voice =
+                      SSMLParser.voices.find(({ name }) =>
+                        new RegExp('^English_\\(America\\)(\s|$)').test(name)
+                      ) ||
+                      SSMLParser.voices.find(({ lang }) =>
+                        new RegExp(`^${navigator.language}`, 'i').test(lang)
+                      ) ||
+                      SSMLParser.voices.find(({ name }) =>
+                        new RegExp(
+                          `^${navigator.languages.join('|^')}`,
+                          'i'
+                        ).test(name)
+                      );
                   }
                   console.log(utterance.voice.name);
                   utterance.onend = resolve;
@@ -597,7 +603,7 @@
        xsi:schemaLocation="http://www.w3.org/2001/10/synthesis http://www.w3.org/TR/speech-synthesis11/synthesis.xsd"
        xml:lang="en-US">
        <prosody pitch="x-low" contour="" range="" rate="medium" duration="" volume="">The number e</prosody><break strength="strong"/>
-       <voice name="English (America)+Storm" languages="en-US" required="name">${Math.E}</voice>
+       <voice name="English_(America)+Storm" languages="en-US" required="name">${Math.E}</voice>
         This is a <break time="2500ms"/> 2.5 second pause. 
   </speak>`,
         `<?xml version="1.0"?>
@@ -607,7 +613,7 @@
        xsi:schemaLocation="http://www.w3.org/2001/10/synthesis http://www.w3.org/TR/speech-synthesis11/synthesis.xsd"
        xml:lang="en-US">
        <prosody pitch="0.5" contour="" range="" rate="0.75" duration="" volume="">PI</prosody><break time="1s"/>
-       <voice name="English (America)+klatt" languages="en-US" required="name">${Math.PI}</voice>
+       <voice name="English_(America)+klatt" languages="en-US" required="name">${Math.PI}</voice>
   </speak>`,
         `<?xml version="1.0"?>
   <speak version="1.1"
@@ -615,7 +621,7 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.w3.org/2001/10/synthesis http://www.w3.org/TR/speech-synthesis11/synthesis.xsd"
        xml:lang="en-US">
-       <voice name="English (Caribbean)+Kaukovalta" languages="en-US" required="name"><prosody pitch="0.67" contour="" range="" rate="default" duration="" volume="">The Golden Ratio</prosody><break strength="weak" time="350ms"/> ${(1 +
+       <voice name="English_(Caribbean)+Kaukovalta" languages="en-US" required="name"><prosody pitch="0.67" contour="" range="" rate="default" duration="" volume="">The Golden Ratio</prosody><break strength="weak" time="350ms"/> ${(1 +
          Math.sqrt(5)) /
          2}</voice>
   </speak>`,
@@ -649,17 +655,22 @@
           queue: for (const ssml of ssml_input) {
             for (const utterance of new SSMLParser(ssml).queue) {
               try {
-                if (await Promise.race([new Promise(resolve =>
-                  button.addEventListener(
-                    'click',
-                    _ => {
-                      resolve('cancel');
-                    },
-                    { once: true }
-                  )
-                ).catch(e => {
-                  throw e;
-                }), utterance()]) === 'cancel') {
+                if (
+                  (await Promise.race([
+                    new Promise(resolve =>
+                      button.addEventListener(
+                        'click',
+                        _ => {
+                          resolve('cancel');
+                        },
+                        { once: true }
+                      )
+                    ).catch(e => {
+                      throw e;
+                    }),
+                    utterance(),
+                  ])) === 'cancel'
+                ) {
                   synth.cancel();
                   console.log('speechSynthesis cancelled');
                   break queue;
@@ -668,27 +679,34 @@
                 console.error(e.message);
               } finally {
                 synth.cancel();
-  
-              };
-            };       
-          };
+              }
+            }
+          }
           button.value = 'Start speech synthesis';
-            button.addEventListener('click', _ => {
+          button.addEventListener(
+            'click',
+            _ => {
               handleVoicesChanged();
-            }, {once: true})
+            },
+            { once: true }
+          );
         };
-        button.addEventListener('click', _ => {
-        synth.onvoiceschanged = handleVoicesChanged;
-        SSMLParser.voices = synth.getVoices();
-        if (SSMLParser.voices.length) {
-          handleVoicesChanged();
-        }
-        }, {once: true});
+        button.addEventListener(
+          'click',
+          _ => {
+            synth.onvoiceschanged = handleVoicesChanged;
+            SSMLParser.voices = synth.getVoices();
+            if (SSMLParser.voices.length) {
+              handleVoicesChanged();
+            }
+          },
+          { once: true }
+        );
       };
     </script>
   </head>
 
   <body>
-    <input type="button" tabIndex="1" value="Start speech synthesis"/>
+    <input type="button" tabindex="1" value="Start speech synthesis" />
   </body>
 </html>
