@@ -254,7 +254,7 @@
                   if (utterance.voice === null) {
                     utterance.voice =
                       SSMLParser.voices.find(({ name }) =>
-                        new RegExp('^English_\\(America\\)(\s|$)').test(name)
+                        new RegExp('^English[\s_]\\(America\\)(\s|$)').test(name)
                       ) ||
                       SSMLParser.voices.find(({ lang }) =>
                         new RegExp(`^${navigator.language}`, 'i').test(lang)
